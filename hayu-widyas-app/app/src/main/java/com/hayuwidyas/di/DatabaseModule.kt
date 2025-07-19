@@ -1,11 +1,7 @@
 package com.hayuwidyas.di
 
 import android.content.Context
-import androidx.room.Room
-import com.hayuwidyas.data.local.AppDatabase
-import com.hayuwidyas.data.local.dao.CartDao
-import com.hayuwidyas.data.local.dao.ProductDao
-import com.hayuwidyas.data.local.dao.WishlistDao
+import com.hayuwidyas.data.local.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,38 +10,36 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 /**
- * Database Module for Dependency Injection
- * 
- * Provides Room database instance and all DAOs for local data storage.
+ * Database module for dependency injection
+ * Provides Room database and DAO instances
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-
+    
     @Provides
     @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context.applicationContext,
-            AppDatabase::class.java,
-            AppDatabase.DATABASE_NAME
-        )
-            .fallbackToDestructiveMigration()
-            .build()
+    fun provideDatabase(@ApplicationContext context: Context): HayuWidyasDatabase {
+        return HayuWidyasDatabase.getDatabase(context)
     }
-
+    
     @Provides
-    fun provideProductDao(database: AppDatabase): ProductDao {
-        return database.productDao()
-    }
-
-    @Provides
-    fun provideCartDao(database: AppDatabase): CartDao {
+    fun provideCartDao(database: HayuWidyasDatabase): CartDao {
         return database.cartDao()
     }
-
+    
     @Provides
-    fun provideWishlistDao(database: AppDatabase): WishlistDao {
+    fun provideWishlistDao(database: HayuWidyasDatabase): WishlistDao {
         return database.wishlistDao()
+    }
+    
+    @Provides
+    fun provideProductCacheDao(database: HayuWidyasDatabase): ProductCacheDao {
+        return database.productCacheDao()
+    }
+    
+    @Provides
+    fun provideCategoryCacheDao(database: HayuWidyasDatabase): CategoryCacheDao {
+        return database.categoryCacheDao()
     }
 }
