@@ -1,0 +1,322 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Android App Jobs
+  android-lint:
+    name: Android Lint & Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+      
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for gradlew
+      run: chmod +x hayu-widyas-app/gradlew
+      
+    - name: Run Detekt
+      run: |
+        cd hayu-widyas-app
+        ./gradlew detekt
+        
+    - name: Run KtLint
+      run: |
+        cd hayu-widyas-app
+        ./gradlew ktlintCheck
+        
+    - name: Run Android Lint
+      run: |
+        cd hayu-widyas-app
+        ./gradlew lintDebug
+        
+    - name: Upload lint reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: android-lint-reports
+        path: |
+          hayu-widyas-app/app/build/reports/
+          hayu-widyas-app/build/reports/
+
+  android-test:
+    name: Android Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+      
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for gradlew
+      run: chmod +x hayu-widyas-app/gradlew
+      
+    - name: Run unit tests
+      run: |
+        cd hayu-widyas-app
+        ./gradlew testDebugUnitTest
+        
+    - name: Generate test report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Android Test Results
+        path: hayu-widyas-app/app/build/test-results/testDebugUnitTest/*.xml
+        reporter: java-junit
+        
+    - name: Upload test reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: android-test-reports
+        path: hayu-widyas-app/app/build/reports/tests/
+
+  android-build:
+    name: Android Build
+    runs-on: ubuntu-latest
+    needs: [android-lint, android-test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+      
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for gradlew
+      run: chmod +x hayu-widyas-app/gradlew
+      
+    - name: Build debug APK
+      run: |
+        cd hayu-widyas-app
+        ./gradlew assembleDebug
+        
+    - name: Upload debug APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: debug-apk
+        path: hayu-widyas-app/app/build/outputs/apk/debug/*.apk
+
+  # Web Dashboard Jobs
+  web-lint:
+    name: Web Lint & Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: hayu-widyas-dashboard/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd hayu-widyas-dashboard
+        npm ci
+        
+    - name: Run ESLint
+      run: |
+        cd hayu-widyas-dashboard
+        npm run lint
+        
+    - name: Run Prettier check
+      run: |
+        cd hayu-widyas-dashboard
+        npm run format:check
+        
+    - name: Run TypeScript check
+      run: |
+        cd hayu-widyas-dashboard
+        npm run type-check
+
+  web-test:
+    name: Web Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: hayu-widyas-dashboard/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd hayu-widyas-dashboard
+        npm ci
+        
+    - name: Run tests
+      run: |
+        cd hayu-widyas-dashboard
+        npm run test:coverage
+        
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        directory: hayu-widyas-dashboard/coverage
+        flags: web
+        name: web-coverage
+
+  web-build:
+    name: Web Build
+    runs-on: ubuntu-latest
+    needs: [web-lint, web-test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: hayu-widyas-dashboard/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd hayu-widyas-dashboard
+        npm ci
+        
+    - name: Build application
+      run: |
+        cd hayu-widyas-dashboard
+        npm run build
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: web-build
+        path: hayu-widyas-dashboard/.next/
+
+  # Security Scanning
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Deployment (only on main branch)
+  deploy:
+    name: Deploy Applications
+    runs-on: ubuntu-latest
+    needs: [android-build, web-build]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      
+    - name: Deploy to staging
+      run: |
+        echo "Deploying applications to staging environment..."
+        # Add deployment scripts here
+        
+    # - name: Deploy web dashboard to Vercel
+    #   uses: amondnet/vercel-action@v25
+    #   with:
+    #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
+    #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+    #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+    #     working-directory: hayu-widyas-dashboard
+
+  # Notification
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [android-build, web-build, security-scan]
+    if: always()
+    
+    steps:
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3
+      if: always()
+      with:
+        status: ${{ job.status }}
+        channel: '#hayu-widyas-ci'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow
