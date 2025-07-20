@@ -1,0 +1,79 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    ext {
+        // Compose versions - using latest stable releases (verified from developer.android.com)
+        compose_bom_version = '2025.05.00'
+        compose_compiler_version = '1.5.15'
+        
+        // Core versions
+        kotlin_version = '1.9.24'
+        agp_version = '8.4.2'
+        
+        // Dependency Injection
+        hilt_version = '2.51.1'
+        
+        // Database
+        room_version = '2.6.1'
+        
+        // Networking
+        retrofit_version = '2.11.0'
+        okhttp_version = '4.12.0'
+        
+        // Image Loading
+        coil_version = '2.6.0'
+        
+        // Firebase
+        firebase_bom_version = '33.1.1'
+        play_services_auth_version = '21.2.0'
+        
+        // AndroidX Core
+        core_ktx_version = '1.13.1'
+        lifecycle_version = '2.8.2'
+        activity_compose_version = '1.9.0'
+        navigation_compose_version = '2.7.7'
+        
+        // Coroutines
+        coroutines_version = '1.8.1'
+        
+        // Security
+        security_crypto_version = '1.1.0-alpha06'
+        
+        // UI Components (compatible with Compose BOM 2025.05.00)
+        accompanist_version = '0.32.0'
+        lottie_version = '6.4.1'
+        
+        // Storage
+        datastore_version = '1.1.1'
+        
+        // Testing
+        junit_version = '4.13.2'
+        mockito_version = '5.12.0'
+        mockito_kotlin_version = '5.3.1'
+        androidx_test_ext_version = '1.1.5'
+        espresso_version = '3.5.1'
+        arch_core_testing_version = '2.2.0'
+        
+        // Debug Tools
+        timber_version = '5.0.1'
+        
+        // Paging
+        paging_version = '3.3.0'
+        
+        // Splash Screen
+        splash_screen_version = '1.0.1'
+    }
+}
+
+plugins {
+    id 'com.android.application' version "$agp_version" apply false
+    id 'com.android.library' version "$agp_version" apply false
+    id 'org.jetbrains.kotlin.android' version "$kotlin_version" apply false
+    id 'com.google.dagger.hilt.android' version "$hilt_version" apply false
+    id 'com.google.gms.google-services' version '4.4.2' apply false
+    id 'com.google.firebase.crashlytics' version '3.0.2' apply false
+    id 'com.google.firebase.firebase-perf' version '1.4.2' apply false
+}
+
+tasks.register('clean', Delete) {
+    delete rootProject.buildDir
+}

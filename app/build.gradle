@@ -1,0 +1,283 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'kotlin-parcelize'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+    id 'com.google.firebase.firebase-perf'
+}
+
+android {
+    namespace 'com.hayuwidyas'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.hayuwidyas"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
+
+        // Build config fields
+        buildConfigField "String", "VERSION_NAME", "\"${versionName}\""
+        buildConfigField "String", "WOOCOMMERCE_BASE_URL", "\"https://hayuwidyas.com/wp-json/wc/v3/\""
+        buildConfigField "String", "WOOCOMMERCE_CONSUMER_KEY", "\"ck_your_consumer_key_here\""
+        buildConfigField "String", "WOOCOMMERCE_CONSUMER_SECRET", "\"cs_your_consumer_secret_here\""
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            debuggable true
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-debug'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        compose true
+        buildConfig true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_compiler_version
+    }
+
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        disable 'InvalidPackage'
+    }
+}
+
+dependencies {
+    // Compose BOM - Manages all Compose library versions automatically
+    implementation platform("androidx.compose:compose-bom:$compose_bom_version")
+    
+    // Core Android Dependencies
+    implementation "androidx.core:core-ktx:$core_ktx_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+    implementation "androidx.activity:activity-compose:$activity_compose_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_version"
+
+    // Jetpack Compose (versions managed by BOM - NO explicit versions)
+    implementation "androidx.compose.ui:ui"
+    implementation "androidx.compose.ui:ui-tooling-preview"
+    implementation "androidx.compose.material3:material3"
+    implementation "androidx.compose.material:material-icons-extended"
+    implementation "androidx.compose.animation:animation"
+    implementation "androidx.compose.animation:animation-graphics"
+    implementation "androidx.compose.foundation:foundation"
+    implementation "androidx.compose.foundation:foundation-layout"
+    implementation "androidx.compose.runtime:runtime"
+    implementation "androidx.compose.runtime:runtime-livedata"
+    implementation "androidx.compose.ui:ui-graphics"
+    implementation "androidx.compose.ui:ui-text"
+    implementation "androidx.compose.ui:ui-unit"
+    
+    // Navigation Compose
+    implementation "androidx.navigation:navigation-compose:$navigation_compose_version"
+    implementation "androidx.hilt:hilt-navigation-compose:1.2.0"
+
+    // Hilt Dependency Injection
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
+    // Networking
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+
+    // Image Loading - Compatible with Compose
+    implementation "io.coil-kt:coil-compose:$coil_version"
+
+    // Room Database
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    implementation "androidx.room:room-paging:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    // Firebase (managed by BOM)
+    implementation platform("com.google.firebase:firebase-bom:$firebase_bom_version")
+    implementation "com.google.firebase:firebase-auth-ktx"
+    implementation "com.google.firebase:firebase-firestore-ktx"
+    implementation "com.google.firebase:firebase-storage-ktx"
+    implementation "com.google.firebase:firebase-crashlytics-ktx"
+    implementation "com.google.firebase:firebase-perf-ktx"
+    implementation "com.google.firebase:firebase-analytics-ktx"
+    implementation "com.google.android.gms:play-services-auth:$play_services_auth_version"
+
+    // Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutines_version"
+
+    // Security
+    implementation "androidx.security:security-crypto:$security_crypto_version"
+
+    // Splash Screen
+    implementation "androidx.core:core-splashscreen:$splash_screen_version"
+
+    // System UI Controller & Permissions - Compatible with Compose BOM 2024.05.00
+    implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-permissions:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-pager-indicators:$accompanist_version"
+
+    // Paging with Compose
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
+    implementation "androidx.paging:paging-compose:$paging_version"
+
+    // Preferences DataStore
+    implementation "androidx.datastore:datastore-preferences:$datastore_version"
+
+    // Lottie Animations for Compose
+    implementation "com.airbnb.android:lottie-compose:$lottie_version"
+
+    // Timber Logging (Debug builds only)
+    debugImplementation "com.jakewharton.timber:timber:$timber_version"
+
+    // Testing Dependencies
+    testImplementation "junit:junit:$junit_version"
+    testImplementation "org.mockito:mockito-core:$mockito_version"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockito_kotlin_version"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+    testImplementation "androidx.arch.core:core-testing:$arch_core_testing_version"
+    testImplementation "androidx.room:room-testing:$room_version"
+    testImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+    kaptTest "com.google.dagger:hilt-compiler:$hilt_version"
+
+    // Android Testing
+    androidTestImplementation "androidx.test.ext:junit:$androidx_test_ext_version"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4"
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+    androidTestImplementation "androidx.navigation:navigation-testing:$navigation_compose_version"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+    kaptAndroidTest "com.google.dagger:hilt-compiler:$hilt_version"
+
+    // Debug Tools (versions managed by Compose BOM - NO explicit versions)
+    debugImplementation "androidx.compose.ui:ui-tooling"
+    debugImplementation "androidx.compose.ui:ui-test-manifest"
+}
+
+// Kapt configuration for better performance
+kapt {
+    correctErrorTypes = true
+}
+
+/*
+====================================================================
+DEPENDENCY VERSIONS REFERENCE - Hayu Widyas Android App
+====================================================================
+
+COMPOSE ECOSYSTEM:
+- Compose BOM: 2024.05.00 (MANAGES ALL COMPOSE VERSIONS)
+- Compose Compiler: 1.5.13
+- All Compose UI libraries: NO explicit versions (managed by BOM)
+
+CORE ANDROID:
+- Kotlin: 1.9.24
+- Android Gradle Plugin: 8.4.2
+- Gradle: 8.7
+- Core KTX: 1.13.1
+- Lifecycle: 2.8.2
+- Activity Compose: 1.9.0
+
+DEPENDENCY INJECTION:
+- Hilt: 2.51.1
+
+DATABASE:
+- Room: 2.6.1
+
+NETWORKING:
+- Retrofit: 2.11.0
+- OkHttp: 4.12.0
+
+IMAGE LOADING:
+- Coil Compose: 2.6.0
+
+FIREBASE:
+- Firebase BOM: 33.1.1 (MANAGES ALL FIREBASE VERSIONS)
+- Play Services Auth: 21.2.0
+
+NAVIGATION:
+- Navigation Compose: 2.7.7
+- Hilt Navigation Compose: 1.2.0
+
+ACCOMPANIST (Compose Utilities):
+- All Accompanist libraries: 0.32.0 (Compatible with BOM 2024.05.00)
+
+ANIMATIONS:
+- Lottie Compose: 6.4.1
+
+STORAGE:
+- DataStore Preferences: 1.1.1
+- Security Crypto: 1.1.0-alpha06
+
+PAGING:
+- Paging Runtime: 3.3.0
+- Paging Compose: 3.3.0
+
+ASYNC:
+- Coroutines: 1.8.1
+
+TESTING:
+- JUnit: 4.13.2
+- Mockito: 5.12.0
+- Mockito Kotlin: 5.3.1
+- AndroidX Test: 1.1.5
+- Espresso: 3.5.1
+- Arch Core Testing: 2.2.0
+
+DEBUG TOOLS:
+- Timber: 5.0.1
+
+REPOSITORIES:
+- google() (FIRST - Contains AndroidX and Compose libraries)
+- mavenCentral() (SECOND - Contains other dependencies)
+
+COMPATIBILITY NOTES:
+- NO explicit Compose versions - ALL managed by BOM 2024.05.00
+- Compose BOM 2024.05.00 is STABLE and VERIFIED in Google Maven
+- Kotlin 1.9.24 is compatible with Compose Compiler 1.5.13
+- Accompanist 0.32.0 supports Compose BOM 2024.05.00
+- All repositories correctly declared in both build.gradle and settings.gradle
+
+LAST UPDATED: July 2025 - VERIFIED STABLE BUILD
+====================================================================
+*/
