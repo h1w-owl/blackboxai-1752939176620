@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.hayuwidyas.app-mergeDebugResources-92:/values-v18/values-v18.xml",
+            "map": [
+                {
+                    "source": "/home/ubuntu/.gradle/caches/transforms-4/93116a8b6da2ed704f47963a6df2fed7/transformed/appcompat-1.6.1/res/values-v18/values-v18.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "48",
+                        "endOffsets": "99"
+                    }
+                }
+            ]
+        }
+    ]
+}
